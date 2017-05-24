@@ -32,6 +32,7 @@ options:
 
 author:
     - "Russell Huguley"
+    - "copied from ansible project file module"
 notes:
    - Requires that pynag be installed
 '''
