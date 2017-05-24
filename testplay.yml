@@ -3,7 +3,7 @@
     - name: Get some host from the nagios configs
       nagioscfg: 
         hostname: "mytesthost"
-        configpath: "/home/rhuguley/nagios/etc/nagios.cfg"
+        configpath: "/usr/local/nagios/etc/nagios.cfg"
       register: result
 
     - debug: var=result
