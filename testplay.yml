@@ -2,8 +2,14 @@
   tasks:
     - name: Get some host from the nagios configs
       nagioscfg: 
-        hostname: "mytesthost"
+        host_name: "mytesthost"
         configpath: "/usr/local/nagios/etc/nagios.cfg"
+        replace: True
+        values: { 
+            "host_name":     "mytesthost",
+            "address":       "192.168.34.20",
+            "hostgroups":    "testhostgroup",
+            "check_command": "check_ping!3000,80%!5000,100%!!!!!!" }
       register: result
 
     - debug: var=result

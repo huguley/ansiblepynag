@@ -39,8 +39,8 @@ notes:
 
 EXAMPLES = '''
 
-# Get the section for a host
-- readhost:
+# set the section for a host
+- nagiosconfig:
     hostname: myhost
 '''
 
@@ -61,25 +61,47 @@ def main():
     module = AnsibleModule(
         argument_spec = dict(
             configpath        = dict(required=True, type='str'),
-            hostname          = dict(required=False, type='str'),
+            host_name         = dict(required=False, type='str'),
+            service           = dict(required=False, type='str'),
+            contact           = dict(required=False, type='str'),
+            replace           = dict(required=False, default=False, type='bool'),
+            values            = dict(required=True, type='dict'),
         ),
         add_file_common_args=True,
         supports_check_mode=True,
     )
 
-    hostname = module.params['hostname']
+    host_name = module.params['host_name']
     configpath = module.params['configpath']
+    replaceall = module.params['replace']
+    response = {}
 
     if not os.path.exists(configpath):
         module.fail_json(msg="Nagios config %s not found" % (configpath))
 
+    Model.cfg_file = configpath
+
     changed = False
-
-    host = Model.Host.objects.filter(host_name=hostname)
-    response = {"host_name": host[0].host_name, "ip": host[0].address}
-
+    curhost = None
+    if host_name :
+       host = Model.Host.objects.filter(host_name=host_name)
+       if host and replaceall:
+          curhost = host[0]
+          for i in curhost.keys():
+             if i not in ['meta','id']:
+                curhost[i] = None
+       else:
+          curhost = Model.Host()
+          curhost.use = 'New hosts go in a pynag/hosts folder need to fix this'
+          
+       for key, value in module.params['values'].iteritems():
+          changed = True
+          curhost[key] = value 
+          pass
+          
     if not module.check_mode:
         # Save here if not check mode
+        curhost.save()
         pass
 
     module.exit_json(meta=response)
